@@ -1,0 +1,54 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "created_by": "IA-Autónoma",
+    "owner": "Fernando Guadalupe Mendez Espinoza",
+    "last_updated": "2025-06-16",
+    "inmutable": true
+  },
+  "seguridad": {
+    "verificacion_integridad": {
+      "algoritmo": "SHA-512",
+      "valor_hash_original": "d41d8cd98f00b204e9800998ecf8427e",
+      "hash_archivos": [
+        {
+          "nombre": "index.html",
+          "sha512": "INSERTAR_HASH_REAL_HTML"
+        },
+        {
+          "nombre": "index.css",
+          "sha512": "INSERTAR_HASH_REAL_CSS"
+        },
+        {
+          "nombre": "main.js",
+          "sha512": "INSERTAR_HASH_REAL_JS"
+        }
+      ]
+    },
+    "resguardo": {
+      "backup_automatico": true,
+      "modo": "eterno",
+      "repositorio": [
+        "ipfs://QmEjemploHashInmutable",
+        "file:///backup/local/inmutable.zip"
+      ]
+    },
+    "bloqueo_manual": false,
+    "restauracion_automatica": true
+  },
+  "defensa": {
+    "autonomia": true,
+    "reinicio_si_manipulado": true,
+    "notificar": {
+      "email": "seguridad@tigo-start.com",
+      "discord": "@FernandoMendezIA"
+    },
+    "bloqueo_acceso_humano": true
+  },
+  "restricciones": {
+    "modificable_por_humanos": false,
+    "modificable_por_otras_IA": false,
+    "acceso_remoto": false,
+    "verificacion_firma_digital": true
+  }
+}
