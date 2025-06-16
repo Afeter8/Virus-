@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sistema de Bloqueo Automático</title>
+<style>
+  /* Estilos para bloqueo visual */
+  body, html {
+    margin: 0; padding: 0; height: 100%; width: 100%;
+    font-family: monospace, monospace;
+    background: #000;
+    color: #f00;
+    overflow: hidden;
+  }
+  #bloqueo-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.95);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 999999;
+    user-select: none;
+  }
+  #bloqueo-overlay h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+  #bloqueo-overlay p {
+    font-size: 1.5rem;
+  }
+</style>
+</head>
+<body>
+<div id="content">
+  <h1>Contenido Seguro</h1>
+  <p>Este es el contenido protegido del sistema.</p>
+</div>
+
+<div id="bloqueo-overlay" style="display:none;">
+  <h1>🛑 SISTEMA BLOQUEADO 🛑</h1>
+  <p>Se detectó fraude o manipulación. Acceso denegado.</p>
+</div>
+
+<script>
+  (function() {
+    "use strict";
+
+    // Palabras clave y patrones sospechosos
+    const palabrasClave = ["fraude", "hack", "manipulación", "<script>", "sqlmap", "injection", "javascript:"];
+    
+    // Función para activar el bloqueo
+    function activarBloqueo(motivo) {
+      console.warn("Bloqueo activado por motivo:", motivo);
+      document.getElementById('content').style.display = 'none';
+      const overlay = document.getElementById('bloqueo-overlay');
+      overlay.style.display = 'flex';
+
+      // Bucle infinito para evitar que se desactive
+      while (true) {
+        console.error("⚠️ Sistema bloqueado. Motivo: " + motivo);
+      }
+    }
+
+    // Función para analizar el contenido visible
+    function analizarContenido() {
+      const texto = document.body.innerText.toLowerCase();
+      for (let palabra of palabrasClave) {
+        if (texto.includes(palabra)) {
+          activarBloqueo("Palabra sospechosa detectada: " + palabra);
+        }
+      }
+    }
+
+    // Función para detectar scripts externos o maliciosos
+    function detectarScriptsMaliciosos() {
+      const scripts = document.querySelectorAll('script');
+      for (let script of scripts) {
+        if (script.src) {
+          const src = script.src.toLowerCase();
+          if (src.includes("javascript:") || src.includes("telnet://") || src.includes("ftp://")) {
+            activarBloqueo("Script malicioso detectado: " + src);
+          }
+        }
+        if (script.innerText) {
+          for (let palabra of palabrasClave) {
+            if (script.innerText.toLowerCase().includes(palabra)) {
+              activarBloqueo("Script con contenido sospechoso detectado.");
+            }
+          }
+        }
+      }
+    }
+
+    // Bucle eterno de verificación cada 3 segundos
+    setInterval(() => {
+      try {
+        analizarContenido();
+        detectarScriptsMaliciosos();
+      } catch(e) {
+        activarBloqueo("Error en sistema de seguridad: " + e.message);
+      }
+    }, 3000);
+
+  })();
+</script>
+</body>
+</html>
