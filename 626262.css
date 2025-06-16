@@ -1,0 +1,72 @@
+/* === Sistema Visual Inmutable === */
+/* Autor: IA Autónoma para Fernando Guadalupe Mendez Espinoza */
+/* Fecha: 2025-06-16 */
+/* Inmutable: true */
+
+:root {
+  --bg-main: #101010;
+  --color-text: #00ffcc;
+  --color-alert: #ff0033;
+  --border-secure: 3px solid #00ffcc;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-main);
+  color: var(--color-text);
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 16px;
+  user-select: none;
+}
+
+/* Identidad Visual Inmutable */
+#main::after {
+  content: "🔒 Inmutable System by IA-Tigo";
+  display: block;
+  text-align: center;
+  font-size: 12px;
+  padding: 5px;
+  color: var(--color-alert);
+  background-color: rgba(255, 0, 0, 0.05);
+}
+
+/* Elementos críticos protegidos */
+.inmutable-box {
+  border: var(--border-secure);
+  padding: 10px;
+  margin: 10px auto;
+  max-width: 800px;
+  background-color: rgba(0, 255, 204, 0.05);
+  box-shadow: 0 0 10px rgba(0, 255, 204, 0.4);
+}
+
+/* Botón seguro */
+.secure-btn {
+  background-color: var(--color-text);
+  color: #101010;
+  border: none;
+  padding: 10px 20px;
+  font-weight: bold;
+  cursor: not-allowed;
+  pointer-events: none; /* bloquea interacción humana */
+  box-shadow: 0 0 10px var(--color-alert);
+}
+
+/* Protección visual contra manipulación */
+body::before {
+  content: "🛡️ Sistema Visual Protegido";
+  position: fixed;
+  top: 0;
+  right: 0;
+  padding: 3px 10px;
+  background: var(--color-alert);
+  color: white;
+  font-size: 10px;
+  z-index: 9999;
+}
+
+/* Protección total de elementos */
+* {
+  pointer-events: none;
+  -webkit-user-d
