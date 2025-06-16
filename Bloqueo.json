@@ -1,0 +1,61 @@
+{
+  "configuracion_general": {
+    "version": "1.0.0",
+    "creador": "IA Autónoma - Proyecto Fernando Guadalupe Mendez Espinoza",
+    "modo": "autónomo",
+    "bloqueo_activo": true,
+    "bucle_eterno": true,
+    "verificacion_intervalo_segundos": 5,
+    "firma_digital_sha512": "e3b0c44298fc1c149afbf4c8996fb924...INMUTABLE"
+  },
+
+  "palabras_clave_peligrosas": [
+    "fraude",
+    "hack",
+    "sqlmap",
+    "injection",
+    "<script>",
+    "javascript:",
+    "manipulación"
+  ],
+
+  "url_sospechosas": [
+    "ftp://",
+    "telnet://",
+    "javascript:",
+    "data:text/html"
+  ],
+
+  "archivos_sensibles": {
+    "index.html": {
+      "hash_original": "b5edc1d7fc9a4e1e9cd7417e83d07c7d...",
+      "tamano_bytes": 15247,
+      "verificacion_obligatoria": true
+    },
+    "bloqueo_automatico.js": {
+      "hash_original": "cd91a58f9cc7e1bb7fe482cb5db5b83a...",
+      "tamano_bytes": 9832,
+      "verificacion_obligatoria": true
+    }
+  },
+
+  "acciones_bloqueo": {
+    "desactivar_UI": true,
+    "remover_contenido_HTML": true,
+    "mostrar_mensaje_bloqueo": true,
+    "loop_visual_infinito": true,
+    "console_alert": true
+  },
+
+  "mensajes_bloqueo": {
+    "es": "🛑 SISTEMA BLOQUEADO POR FRAUDE DETECTADO 🛑",
+    "en": "🛑 SYSTEM LOCKED DUE TO DETECTED FRAUD 🛑"
+  },
+
+  "log_bloqueo": {
+    "almacenamiento_local": true,
+    "timestamp_formato": "ISO8601",
+    "reporte_a_blockchain": false,
+    "guardar_en_localhost": "bloqueo_logs.json"
+  }
+}
