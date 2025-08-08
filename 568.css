@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>StarTigo — Conexión Inmutable y Rotativa</title>
+
+<!-- ===========================
+     ESTILO (CSS) - activación & estado
+     =========================== -->
+<style>
+  :root{
+    --bg:#071017; --panel:#0f1f24; --accent:#00c4a7; --danger:#ff5c5c; --ok:#5cffb6;
+    --mono: "Courier New", monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--mono);background:linear-gradient(180deg,#021018,var(--bg));color:var(--accent);padding:18px}
+  header{display:flex;align-items:center;gap:12px}
+  header h1{font-size:1.4rem;margin:0}
+  .controls{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+  button.btn{background:transparent;border:1px solid var(--accent);color:var(--accent);padding:8px 12px;border-radius:6px;cursor:pointer}
+  button.btn.warn{border-color:var(--danger);color:var(--danger)}
+  .panel{background:var(--panel);padding:14px;border-radius:10px;margin-top:14px;border:1px solid rgba(0,196,167,0.06)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+  .biglog{height:280px;overflow:auto;background:#001516;padding:12px;border-radius:8px;border:1px solid rgba(0,255,192,0.04); color:#bff7ea;font-size:0.85rem}
+  .status {display:flex;gap:10px;align-items:center}
+  .dot{width:12px;height:12px;border-radius:50%;background:var(--danger);box-shadow:0 0 8px rgba(255,92,92,0.15)}
+  .dot.ok{background:var(--ok);box-shadow:0 0 10px rgba(92,255,182,0.12)}
+  .small{font-size:0.85rem;color:#9fdcd0}
+  .code {background:#021212;padding:8px;border-radius:6px;border:1px solid rgba(0,0,0,0.2);font-family:monospace;color:#9ff}
+  /* Activación CSS (visual feedback) */
+  .active-mode{box-shadow:0 0 20px rgba(0,196,167,0.12); transform:translateY(-2px); transition:all .2s}
+  footer{margin-top:18px;color:#6fcfc0;font-size:0.8rem}
+  a.link{color:var(--accent)}
+  /* responsive */
+  @media (max-width:520px){header{flex-direction:column;align-items:flex-start}}
+</style>
+</head>
+
+<body>
+  <header>
+    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" style="opacity:.9"><path d="M12 2L13.8 8.6H20.6L15.4 12.4L17.2 19L12 14.8L6.8 19L8.6 12.4L3.4 8.6H10.2L12 2Z" fill="#00c4a7"/></svg>
+    <div>
+      <h1>StarTigo — Conexión Inmutable (prueba)</h1>
+      <div class="small">Bucle automático · IP rotativas · Nodo Star Tigo · Integración ClouDNS / GitHub</div>
+    </div>
+  </header>
+
+  <div class="controls">
+    <button id="btnStart" class="btn">Iniciar bucle</button>
+    <button id="btnStop" class="btn warn">Detener bucle</button>
+    <button id="btnRotate" class="btn">Forzar rotación IP</button>
+    <button id="btnFace" class="btn">Activar Face (demo)</button>
+    <button id="btnDeploy" class="btn">Preparar deploy GitHub</button>
+    <div style="flex:1"></div>
+    <div class="small">Modo: <span id="modeText">DETENIDO</span></div>
+  </div>
+
+  <div class="panel grid">
+    <div>
+      <h3 class="small">Estado general</h3>
+      <div class="panel">
+        <div class="status"><div id="connDot" class="dot"></div><div id="connText">No conectado</div></div>
+        <div style="height:8px"></div>
+        <div class="small">IP actual: <span id="ipActual" class="code">-</span></div>
+        <div class="small">Antena seleccionada: <span id="antenaActual" class="code">-</span></div>
+        <div style="height:8px"></div>
+        <div class="small">DNS activo: <span id="dnsActive" class="code">ClouDNS (placeholder)</span></div>
+      </div>
+    </div>
+
+    <div>
+      <h3 class="small">Logs del sistema</h3>
+      <div class="panel biglog" id="logbox">[Sistema] listo. Pulsa "Iniciar bucle".</div>
+    </div>
+
+    <div>
+      <h3 class="small">Configuración JSON embebida (editable)</h3>
+      <div class="panel code" id="jsonConfig">
+        <!-- JSON se inyecta por JS -->
+      </div>
+    </div>
+
+    <div>
+      <h3 class="small">Acciones y guías</h3>
+      <div class="panel small">
+        • El HTML funciona como controlador visual y verificador.<br>
+        • Para actuar sobre CPE210 -> usa OpenWRT y scripts SSH (ver instrucciones abajo).<br>
+        • Para deploy automático en GitHub: conecta token en GitHub Actions (no incluido aquí).<br>
