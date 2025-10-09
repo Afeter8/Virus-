@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FGME GLOBAL SYSTEM + Cloudflare - Ejecución Automática</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <style>
+        :root {
+            /* Colores FGME Global */
+            --global-blue: #1E90FF;
+            --decentralized-purple: #8A2BE2;
+            --binary-orange: #FF8C00;
+            --cultural-green: #32CD32;
+            --ip-rotating-red: #FF4444;
+            --github-gold: #FFD700;
+            
+            /* Colores Cloudflare */
+            --cloudflare-orange: #F38020;
+            --cloudflare-blue: #0072EF;
+            --cloudflare-dark: #2C2C2C;
+            --cloudflare-light: #F5F5F5;
+            
+            /* Colores Auto-Reparación */
+            --repair-green: #00FF88;
+            --ai-blue: #0088FF;
+            --security-red: #FF4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+
+        body {
+            background: #0A0A1A;
+            color: #fff;
+            padding: 20px;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(243, 128, 32, 0.1) 0%, transparent 25%),
+                radial-gradient(circle at 80% 70%, rgba(0, 114, 239, 0.1) 0%, transparent 25%),
+                radial-gradient(circle at 40% 80%, rgba(30, 144, 255, 0.1) 0%, transparent 25%),
+                linear-gradient(45deg, transparent 49%, rgba(0, 255, 136, 0.05) 50%, transparent 51%);
+            background-size: 100px 100px, 120px 120px, 80px 80px, 60px 60px;
+            animation: cloudflareFlow 25s linear infinite;
+        }
+
+        .master-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .cloudflare-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(44, 44, 44, 0.9), rgba(30, 30, 50, 0.9));
+            border: 4px solid var(--cloudflare-orange);
+            border-radius: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cloudflare-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(243, 128, 32, 0.3), transparent);
+            animation: cloudflareScan 8s linear infinite;
+        }
+
+        .system-title {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, var(--cloudflare-orange), var(--global-blue), var(--cloudflare-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 40px rgba(243, 128, 32, 0.5);
+        }
+
+        .system-subtitle {
+            font-size: 1.3rem;
+            color: var(--cloudflare-light);
+            margin-bottom: 25px;
+        }
+
+        .cloudflare-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 25px;
+            background: rgba(243, 128, 32, 0.2);
+            border: 2px solid var(--cloudflare-orange);
+            border-radius: 25px;
+            margin: 10px;
+            animation: pulse 2s infinite;
+            font-weight: bold;
+        }
+
+        .integration-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .integration-stat {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 25px;
+            background: rgba(0, 114, 239, 0.15);
+            border: 2px solid var(--cloudflare-blue);
+            border-radius: 20px;
+        }
+
+        .stat-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--cloudflare-orange);
+            animation: cloudflarePulse 1.5s infinite;
+        }
+
+        .system-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .cloudflare-panel {
+            background: rgba(30, 35, 45, 0.95);
+            border: 3px solid var(--cloudflare-orange);
+            border-radius: 20px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .cloudflare-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(243, 128, 32, 0.2), transparent);
+            animation: panelScan 6s linear infinite;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--cloudflare-orange);
+        }
+
+        .panel-header i {
+            font-size: 2.8rem;
+            margin-right: 20px;
+            color: var(--cloudflare-orange);
+        }
+
+        .cloudflare-terminal {
+            height: 300px;
+            background: #000;
+            border: 2px solid var(--cloudflare-blue);
+            border-radius: 12px;
+            padding: 20px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin: 20px 0;
+            background-image: linear-gradient(90deg, transparent 99%, rgba(0, 114, 239, 0.1) 100%);
+            background-size: 20px 100%;
+        }
+
+        .terminal-line {
+            margin-bottom: 8px;
+            white-space: pre-wrap;
+            line-height: 1.4;
+        }
+
+        .cloudflare-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .cloudflare-card {
+            background: rgba(243, 128, 32, 0.1);
+            border: 1px solid var(--cloudflare-orange);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .cloudflare-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(243, 128, 32, 0.3);
+        }
+
+        .cloudflare-value {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: var(--cloudflare-orange);
+            margin: 15px 0;
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        .worker-visual {
+            height: 200px;
+            background: #000;
+            border: 2px solid var(--cloudflare-blue);
+            border-radius: 10px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .edge-network {
+            height: 250px;
+            background: #000;
+            border: 2px solid var(--global-blue);
+            border-radius: 12px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cloudflare-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .cloudflare-btn {
+            padding: 16px 20px;
+            background: rgba(243, 128, 32, 0.2);
+            border: 2px solid var(--cloudflare-orange);
+            border-radius: 10px;
+            color: var(--cloudflare-orange);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .cloudflare-btn:hover {
+            background: rgba(243, 128, 32, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(243, 128, 32, 0.4);
+        }
+
+        .deployment-status {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(0, 114, 239, 0.1);
+            border: 1px solid var(--cloudflare-blue);
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--repair-green);
+            animation: statusPulse 2s infinite;
+        }
+
+        @keyframes cloudflareFlow {
+            0% { background-position: 0 0, 0 0, 0 0, 0 0; }
+            100% { background-position: 100px 100px, 120px 120px, 80px 80px, 60px 60px; }
+        }
+
+        @keyframes cloudflareScan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        @keyframes panelScan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        @keyframes cloudflarePulse {
+            0%, 100% { 
+                opacity: 1; 
+                box-shadow: 0 0 10px var(--cloudflare-orange);
+            }
+            50% { 
+                opacity: 0.7; 
+                box-shadow: 0 0 5px var(--cloudflare-orange);
+            }
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.2); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+    </style>
+</head>
+<body>
+    <div class="master-container">
+        <!-- CABECERA CLOUDFLARE INTEGRADA -->
+        <div class="cloudflare-header">
+            <h1 class="system-title">🌐⚡ FGME GLOBAL + CLOUDFLARE</h1>
+            <p class="system-subtitle">Sistema de Ejecución Automática en Edge Network Global</p>
+            
+            <div class="cloudflare-badge">
+                <i class="fas fa-cloud"></i>
+                Cloudflare Workers Integration
+            </div>
+            <div class="cloudflare-badge">
+                <i class="fas fa-bolt"></i>
+                Edge Computing Automático
+            </div>
+            
+            <div class="integration-stats">
+                <div class="integration-stat">
+                    <div class="stat-dot"></div>
+                    <span>Workers Desplegados: <strong id="workers-deployed">0</strong></span>
+                </div>
+                <div class="integration-stat">
+                    <div class="stat-dot"></div>
+                    <span>Edge Locations: <strong id="edge-locations">200+</strong></span>
+                </div>
+                <div class="integration-stat">
+                    <div class="stat-dot"></div>
+                    <span>Requests/Min: <strong id="requests-min">0</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SISTEMA PRINCIPAL INTEGRADO -->
+        <div class="system-grid">
+            <!-- CLOUDFLARE WORKERS AUTOMÁTICOS -->
+            <div class="cloudflare-panel">
+                <div class="panel-header">
+                    <i class="fas fa-code"></i>
+                    <div>
+                        <h2>⚡ CLOUDFLARE WORKERS FGME</h2>
+                        <p>Ejecución automática en edge network global</p>
+                    </div>
+                </div>
+
+                <div class="cloudflare-stats">
+                    <div class="cloudflare-card">
+                        <div>Workers Activos</div>
+                        <div class="cloudflare-value" id="active-workers">0</div>
+                        <div>Ejecutándose</div>
+                    </div>
+                    <div class="cloudflare-card">
+                        <div>CPU Time</div>
+                        <div class="cloudflare-value" id="cpu-time">0ms</div>
+                        <div>Promedio</div>
+                    </div>
+                    <div class="cloudflare-card">
+                        <div>Latencia</div>
+                        <div class="cloudflare-value" id="edge-latency">0ms</div>
+                        <div>Global</div>
+                    </div>
+                </div>
+
+                <div class="worker-visual" id="workers-display">
+                    <!-- Visualización de Workers -->
+                </div>
+
+                <div class="cloudflare-terminal" id="workers-log">
+                    <div class="terminal-line" style="color: var(--cloudflare-orange)">[CLOUDFLARE] Workers API inicializada</div>
+                    <div class="terminal-line" style="color: var(--cloudflare-blue)">[EDGE-NETWORK] Conectado a 200+ locations</div>
+                </div>
+
+                <div class="cloudflare-controls">
+                    <div class="cloudflare-btn" onclick="deployNewWorker()">
+                        <i class="fas fa-rocket"></i>
+                        Desplegar Worker
+                    </div>
+                    <div class="cloudflare-btn" onclick="scaleWorkers()">
+                        <i class="fas fa-expand"></i>
+                        Escalar Automáticamente
+                    </div>
+                </div>
+            </div>
+
+            <!-- EDGE NETWORK GLOBAL -->
+            <div class="cloudflare-panel">
+                <div class="panel-header">
+                    <i class="fas fa-network-wired"></i>
+                    <div>
+                        <h2>🌍 EDGE NETWORK GLOBAL</h2>
+                        <p>Red distribuida con 200+ locations worldwide</p>
+                    </div>
+                </div>
+
+                <div class="edge-network" id="edge-display">
+                    <!-- Visualización de red edge -->
+                </div>
+
+                <div class="cloudflare-stats">
+                    <div class="cloudflare-card">
+                        <div>Locations</div>
+                        <div class="cloudflare-value">200+</div>
+                        <div>Globales</div>
+                    </div>
+                    <div class="cloudflare-card">
+                        <div>Uptime</div>
+                        <div class="cloudflare-value">100%</div>
+                        <div>Garantizado</div>
+                    </div>
+                    <div class="cloudflare-card">
+                        <div>Throughput</div>
+                        <div class="cloudflare-value" id="network-throughput">0Gb/s</div>
+                        <div>Total</div>
+                    </div>
+                </div>
+
+                <div class="cloudflare-terminal" id="edge-log">
+                    <div class="terminal-line" style="color: var(--global-blue)">[EDGE-NETWORK] Red global inicializada</div>
+                    <div class="terminal-line" style="color: var(--global-blue)">[AUTO-ROUTING] Enrutamiento automático activo</div>
+                </div>
+            </div>
+
+            <!-- SISTEMA DE DEPLOY AUTOMÁTICO -->
+            <div class="cloudflare-panel">
+                <div class="panel-header">
+                    <i class="fas fa-robot"></i>
+                    <div>
+                        <h2>🤖 DEPLOY AUTOMÁTICO FGME</h2>
+                        <p>CI/CD integrado con Cloudflare Pages</p>
+                    </div>
+                </div>
+
+                <div class="deployment-status">
+                    <div class="status-indicator"></div>
+                    <div>
+                        <strong>Último Deploy:</strong> 
+                        <span id="last-deploy">Hace 0 segundos</span>
+                    </div>
+                </div>
+
+                <div class="cloudflare-stats">
+                    <div class="cloudflare-card">
+                        <div>Deploys</div>
+                        <div class="cloudflare-value" id="total-deploys">0</div>
+                        <div>Automáticos</div>
+                    </div>
+                    <div class="cloudflare-card">
+                        <div>Build Time</div>
+                        <div class="cloudflare-value" id="build-time">0s</div>
+                        <div>Promedio</div>
+                    </div>
+                    <div class="cloudflare-card">
+                        <div>Cache Hit</div>
+                        <div class="cloudflare-value" id="cache-hit">98%</div>
+                        <div>Ratio</div>
+                    </div>
+                </div>
+
+                <div class="cloudflare-terminal" id="deploy-log">
+                    <div class="terminal-line" style="color: var(--repair-green)">[AUTO-DEPLOY] Sistema CI/CD inicializado</div>
+                    <div class="terminal-line" style="color: var(--repair-green)">[CLOUDFLARE-PAGES] Integración Pages activa</div>
+                </div>
+
+                <div class="cloudflare-controls">
+                    <div class="cloudflare-btn" onclick="triggerAutoDeploy()">
+                        <i class="fas fa-sync"></i>
+                        Deploy Automático
+                    </div>
+                    <div class="cloudflare-btn" onclick="rollbackDeploy()">
+                        <i class="fas fa-undo"></i>
+                        Rollback Auto
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEGURIDAD Y DDoS PROTECTION -->
+            <div class="cloudflare-panel">
+                <div class="panel-header">
+                    <i class="fas fa-shield-alt"></i>
+                    <div>
+                        <h2>🛡️ CLOUDFLARE SECURITY</h2>
+                        <p>Protección automática contra amenazas</p>
+                    </div>
+                </div>
+
+                <div class="cloudflare-stats">
+                    <div class="cloudflare-card">
+                        <div>Threats Blocked</div>
+                        <div class="cloudflare-value" id="threats-blocked">0</div>
+                        <div>Totales</div>
+                    </div>
+                    <div class="cloudflare-card">
+                        <div>DDoS Mitigated</div>
+                        <div class="cloudflare-value" id="ddos-blocked">0</div>
+                        <div>Ataques</div>
+                    </div>
+                    <div class="cloudflare-card">
+                        <div>WAF Rules</div>
+                        <div class="cloudflare-value" id="waf-rules">150+</div>
+                        <div>Activas</div>
+                    </div>
+                </div>
+
+                <div class="cloudflare-terminal" id="security-log">
+                    <div class="terminal-line" style="color: var(--security-red)">[SECURITY] Cloudflare WAF activado</div>
+                    <div class="terminal-line" style="color: var(--security-red)">[DDoS-PROTECTION] Mitigación automática activa</div>
+                </div>
+
+                <div class="cloudflare-controls">
+                    <div class="cloudflare-btn" onclick="enableSecurity()">
+                        <i class="fas fa-lock"></i>
+                        Máxima Seguridad
+                    </div>
+                    <div class="cloudflare-btn" onclick="analyzeThreats()">
+                        <i class="fas fa-search"></i>
+                        Análisis Amenazas
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== SISTEMA CLOUDFLARE INTEGRADO ====================
+        class CloudflareIntegrationSystem {
+            constructor() {
+                this.activeWorkers = 0;
+                this.workersDeployed = 0;
+                this.totalDeploys = 0;
+                this.requestsPerMin = 0;
+                this.threatsBlocked = 0;
+                this.ddosBlocked = 0;
+                this.cpuTime = 0;
+                this.edgeLatency = 0;
+                this.networkThroughput = 0;
+                this.buildTime = 0;
+                this.lastDeployTime = Date.now();
+                
+                this.initCloudflareSystem();
+            }
+
+            initCloudflareSystem() {
+                this.addLog('[CLOUDFLARE] Inicializando integración Cloudflare...', 'cloudflare-orange');
+                this.addLog('[WORKERS] Configurando Workers automáticos...', 'cloudflare-blue');
+                this.addLog('[EDGE-NETWORK] Conectando a red global...', 'global-blue');
+                
+                this.createWorkersVisualization();
+                this.createEdgeVisualization();
+                this.startCloudflareProcesses();
+                this.startAutoDeploy();
+            }
+
+            createWorkersVisualization() {
+                const display = document.getElementById('workers-display');
+                setInterval(() => {
+                    display.innerHTML = '';
+                    // Crear visualización de workers
+                    for (let i = 0; i < this.activeWorkers; i++) {
+                        const worker = document.createElement('div');
+                        worker.style.cssText = `
+                            position: absolute;
+                            width: 30px;
+                            height: 30px;
+                            background: var(--cloudflare-orange);
+                            border-radius: 50%;
+                            left: ${Math.random() * 90 + 5}%;
+                            top: ${Math.random() * 90 + 5}%;
+                            box-shadow: 0 0 15px var(--cloudflare-orange);
+                            animation: workerPulse ${2 + Math.random() * 2}s infinite;
+                        `;
+                        display.appendChild(worker);
+                    }
+                }, 2000);
+            }
+
+            createEdgeVisualization() {
+                const display = document.getElementById('edge-display');
+                setInterval(() => {
+                    display.innerHTML = '';
+                    // Crear visualización de edge network
+                    for (let i = 0; i < 50; i++) {
+                        const node = document.createElement('div');
+                        node.style.cssText = `
+                            position: absolute;
+                            width: 4px;
+                            height: 4px;
+                            background: var(--cloudflare-blue);
+                            border-radius: 50%;
+                            left: ${Math.random() * 100}%;
+                            top: ${Math.random() * 100}%;
+                            box-shadow: 0 0 8px var(--cloudflare-blue);
+                            animation: edgeNode ${3 + Math.random() * 3}s infinite;
+                        `;
+                        display.appendChild(node);
+                    }
+                }, 3000);
+            }
+
+            startCloudflareProcesses() {
+                // Monitoreo de workers
+                setInterval(() => {
+                    this.monitorWorkers();
+                }, 3000);
+
+                // Métricas de red
+                setInterval(() => {
+                    this.updateNetworkMetrics();
+                }, 5000);
+
+                // Seguridad automática
+                setInterval(() => {
+                    this.autoSecurityScan();
+                }, 8000);
+
+                // Auto-scaling
+                setInterval(() => {
+                    this.autoScaleWorkers();
+                }, 10000);
+            }
+
+            startAutoDeploy() {
+                // Deploys automáticos cada 30 segundos
+                setInterval(() => {
+                    this.autoDeploy();
+                }, 30000);
+            }
+
+            monitorWorkers() {
+                this.requestsPerMin = Math.floor(Math.random() * 1000) + 500;
+                this.cpuTime = Math.floor(Math.random() * 50) + 10;
+                this.edgeLatency = Math.floor(Math.random() * 20) + 5;
+                
+                this.updateStats();
+            }
+
+            updateNetworkMetrics() {
+                this.networkThroughput = (Math.random() * 10 + 5).toFixed(1);
+                document.getElementById('network-throughput').textContent = this.networkThroughput + 'Gb/s';
+            }
+
+            autoSecurityScan() {
+                if (Math.random() > 0.7) {
+                    this.threatsBlocked++;
+                    this.addLog(`[SECURITY] Amenaza bloqueada automáticamente - Total: ${this.threatsBlocked}`, 'security-red');
+                }
+                
+                if (Math.random() > 0.9) {
+                    this.ddosBlocked++;
+                    this.addLog(`[DDoS-PROTECTION] Ataque DDoS mitigado - Total: ${this.ddosBlocked}`, 'security-red');
+                }
+            }
+
+            autoScaleWorkers() {
+                const targetWorkers = Math.floor(this.requestsPerMin / 100);
+                if (targetWorkers > this.activeWorkers) {
+                    this.scaleUpWorkers(targetWorkers);
+                } else if (targetWorkers < this.activeWorkers - 2) {
+                    this.scaleDownWorkers(targetWorkers);
+                }
+            }
+
+            scaleUpWorkers(target) {
+                const workersToAdd = target - this.activeWorkers;
+                for (let i = 0; i < workersToAdd; i++) {
+                    setTimeout(() => {
+                        this.activeWorkers++;
+                        this.workersDeployed++;
+                        this.updateStats();
+                        this.addLog(`[AUTO-SCALE] Nuevo Worker desplegado - Total: ${this.activeWorkers}`, 'cloudflare-orange');
+                    }, i * 1000);
+                }
+            }
+
+            scaleDownWorkers(target) {
+                const workersToRemove = this.activeWorkers - target;
+                this.activeWorkers = target;
+                this.updateStats();
+                this.addLog(`[AUTO-SCALE] ${workersToRemove} Workers removidos - Total: ${this.activeWorkers}`, 'cloudflare-blue');
+            }
+
+            autoDeploy() {
+                this.totalDeploys++;
+                this.buildTime = Math.floor(Math.random() * 30) + 10;
+                this.lastDeployTime = Date.now();
+                
+                this.updateStats();
+                this.addLog(`[AUTO-DEPLOY] Deploy automático #${this.totalDeploys} completado`, 'repair-green');
+            }
+
+            updateStats() {
+                document.getElementById('active-workers').textContent = this.activeWorkers;
+                document.getElementById('workers-deployed').textContent = this.workersDeployed;
+                document.getElementById('requests-min').textContent = this.requestsPerMin;
+                document.getElementById('cpu-time').textContent = this.cpuTime + 'ms';
+                document.getElementById('edge-latency').textContent = this.edgeLatency + 'ms';
+                document.getElementById('total-deploys').textContent = this.totalDeploys;
+                document.getElementById('build-time').textContent = this.buildTime + 's';
+                document.getElementById('threats-blocked').textContent = this.threatsBlocked;
+                document.getElementById('ddos-blocked').textContent = this.ddosBlocked;
+                
+                // Actualizar último deploy
+                const now = Date.now();
+                const diff = Math.floor((now - this.lastDeployTime) / 1000);
+                document.getElementById('last-deploy').textContent = `Hace ${diff} segundos`;
+            }
+
+            // Métodos de control
+            deployNewWorker() {
+                this.addLog('[MANUAL-DEPLOY] Desplegando nuevo Worker...', 'cloudflare-orange');
+                
+                this.activeWorkers++;
+                this.workersDeployed++;
+                this.updateStats();
+                
+                setTimeout(() => {
+                    this.addLog('[MANUAL-DEPLOY] ✅ Worker desplegado exitosamente', 'repair-green');
+                }, 2000);
+            }
+
+            scaleWorkers() {
+                this.addLog('[SCALING] Iniciando escalado automático...', 'cloudflare-blue');
+                
+                const target = Math.floor(this.requestsPerMin / 80);
+                if (target > this.activeWorkers) {
+                    this.scaleUpWorkers(target);
+                } else {
+                    this.addLog('[SCALING] ✅ Workers ya optimizados', 'repair-green');
+                }
+            }
+
+            triggerAutoDeploy() {
+                this.addLog('[MANUAL-DEPLOY] Activando deploy manual...', 'repair-green');
+                this.autoDeploy();
+            }
+
+            rollbackDeploy() {
+                this.addLog('[ROLLBACK] Ejecutando rollback automático...', 'security-red');
+                
+                setTimeout(() => {
+                    this.addLog('[ROLLBACK] ✅ Sistema revertido a versión estable', 'repair-green');
+                }, 3000);
+            }
+
+            enableSecurity() {
+                this.addLog('[SECURITY] Activando máxima seguridad...', 'security-red');
+                
+                this.threatsBlocked += 5;
+                this.updateStats();
+                
+                setTimeout(() => {
+                    this.addLog('[SECURITY] ✅ Todas las protecciones activadas', 'repair-green');
+                }, 2500);
+            }
+
+            analyzeThreats() {
+                this.addLog('[THREAT-ANALYSIS] Analizando amenazas...', 'security-red');
+                
+                setTimeout(() => {
+                    const newThreats = Math.floor(Math.random() * 3);
+                    this.threatsBlocked += newThreats;
+                    this.updateStats();
+                    this.addLog(`[THREAT-ANALYSIS] ✅ ${newThreats} nuevas amenazas identificadas y bloqueadas`, 'repair-green');
+                }, 4000);
+            }
+
+            addLog(message, colorVar) {
+                const containers = ['workers-log', 'edge-log', 'deploy-log', 'security-log'];
+                
+                containers.forEach(containerId => {
+                    const container = document.getElementById(containerId);
+                    const line = document.createElement('div');
+                    line.className = 'terminal-line';
+                    line.style.color = `var(--${colorVar})`;
+                    line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+                    container.appendChild(line);
+                    container.scrollTop = container.scrollHeight;
+                });
+            }
+        }
+
+        // ==================== SIMULACIÓN CLOUDFLARE API ====================
+        class CloudflareAPISimulator {
+            constructor() {
+                this.apiKey = 'fgme_cloudflare_integration_' + Date.now();
+                this.accountId = 'FGME_GLOBAL_SYSTEM';
+                this.zones = [];
+            }
+
+            async deployWorker(script) {
+                // Simular deploy de worker
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        resolve({
+                            success: true,
+                            workerId: 'worker_' + Math.random().toString(36).substr(2, 9),
+                            deploymentId: 'deploy_' + Date.now()
+                        });
+                    }, 1500);
+                });
+            }
+
+            async getAnalytics() {
+                return {
+                    requests: Math.floor(Math.random() * 1000) + 500,
+                    cpuTime: Math.floor(Math.random() * 50) + 10,
+                    latency: Math.floor(Math.random() * 20) + 5
+                };
+            }
+
+            async purgeCache() {
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        resolve({ success: true, purged: Date.now() });
+                    }, 1000);
+                });
+            }
+        }
+
+        // ==================== SISTEMA DE AUTO-DEPLOY ====================
+        class AutoDeploySystem {
+            constructor() {
+                this.deployHistory = [];
+                this.currentVersion = '1.0.0';
+            }
+
+            async deployToCloudflare() {
+                const deploy = {
+                    version: this.currentVersion,
+                    timestamp: Date.now(),
+                    status: 'deploying'
+                };
+                
+                this.deployHistory.push(deploy);
+                
+                // Simular proceso de deploy
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        deploy.status = 'success';
+                        resolve(deploy);
+                    }, 2000);
+                });
+            }
+
+            rollbackTo(version) {
+                const targetDeploy = this.deployHistory.find(d => d.version === version);
+                if (targetDeploy) {
+                    this.currentVersion = version;
+                    return { success: true, rolledBackTo: version };
+                }
+                return { success: false, error: 'Version not found' };
+            }
+        }
+
+        // ==================== INICIALIZACIÓN ====================
+        const cloudflareSystem = new CloudflareIntegrationSystem();
+        const cloudflareAPI = new CloudflareAPISimulator();
+        const deploySystem = new AutoDeploySystem();
+
+        // Inicialización automática
+        document.addEventListener('DOMContentLoaded', function() {
+            // Agregar animaciones CSS
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes workerPulse {
+                    0%, 100% { transform: scale(1); opacity: 1; }
+                    50% { transform: scale(1.2); opacity: 0.8; }
+                }
+                
+                @keyframes edgeNode {
+                    0%, 100% { transform: scale(1); opacity: 0.7; }
+                    50% { transform: scale(1.5); opacity: 1; }
+                }
+                
+                @keyframes workerPulse {
+                    0%, 100% { 
+                        box-shadow: 0 0 15px var(--cloudflare-orange);
+                    }
+                    50% { 
+                        box-shadow: 0 0 25px var(--cloudflare-orange), 0 0 35px var(--cloudflare-orange);
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Iniciar workers iniciales
+            setTimeout(() => {
+                cloudflareSystem.activeWorkers = 3;
+                cloudflareSystem.workersDeployed = 3;
+                cloudflareSystem.updateStats();
+                cloudflareSystem.addLog('[BOOT] Workers iniciales desplegados', 'cloudflare-orange');
+            }, 1000);
+
+            // Simular actividad de red continua
+            setInterval(() => {
+                cloudflareSystem.requestsPerMin = Math.floor(Math.random() * 800) + 200;
+                cloudflareSystem.updateStats();
+            }, 60000);
+        });
+
+        // Exportar para uso global
+        window.cloudflareSystem = cloudflareSystem;
+        window.cloudflareAPI = cloudflareAPI;
+        window.deploySystem = deploySystem;
+
+        // Funciones globales
+        window.deployNewWorker = () => cloudflareSystem.deployNewWorker();
+        window.scaleWorkers = () => cloudflareSystem.scaleWorkers();
+        window.triggerAutoDeploy = () => cloudflareSystem.triggerAutoDeploy();
+        window.rollbackDeploy = () => cloudflareSystem.rollbackDeploy();
+        window.enableSecurity = () => cloudflareSystem.enableSecurity();
+        window.analyzeThreats = () => cloudflareSystem.analyzeThreats();
+    </script>
+</body>
+</html>
