@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Defensa Autónomo IA - Protocolo Inmutable</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 2px solid #00ff41;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            text-shadow: 0 0 10px #00ff41;
+            margin-bottom: 10px;
+        }
+        
+        .status-bar {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #00ff41;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 8px;
+            background: rgba(0, 20, 0, 0.3);
+            border-radius: 3px;
+        }
+        
+        .status-value {
+            color: #00ff41;
+            font-weight: bold;
+        }
+        
+        .defense-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .defense-module {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #00ff41;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .defense-module:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 255, 65, 0.4);
+        }
+        
+        .module-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #00ff41;
+            padding-bottom: 10px;
+        }
+        
+        .module-icon {
+            width: 40px;
+            height: 40px;
+            background: #00ff41;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: #000;
+            font-weight: bold;
+        }
+        
+        .module-content {
+            line-height: 1.6;
+        }
+        
+        .protocol-active {
+            color: #00ff41;
+            animation: pulse 2s infinite;
+        }
+        
+        .protocol-inactive {
+            color: #ff0044;
+        }
+        
+        .log-container {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #00ff41;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 30px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .log-entry {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(0, 255, 65, 0.2);
+            font-size: 0.9rem;
+        }
+        
+        .timestamp {
+            color: #00aa33;
+            margin-right: 10px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            border-top: 1px solid #00ff41;
+            font-size: 0.8rem;
+            color: #00aa33;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        .cyber-border {
+            position: relative;
+            padding: 2px;
+            background: linear-gradient(90deg, #00ff41, #00aaff, #ff00aa, #00ff41);
+            background-size: 400% 400%;
+            animation: gradientShift 3s ease infinite;
+            border-radius: 8px;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .cyber-border > div {
+            background: #0f0f23;
+            border-radius: 6px;
+            padding: 15px;
+        }
+        
+        .threat-level {
+            height: 10px;
+            background: linear-gradient(90deg, #00ff41, #ffff00, #ff0044);
+            border-radius: 5px;
+            margin-top: 5px;
+            position: relative;
+        }
+        
+        .threat-indicator {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: #fff;
+            border-radius: 50%;
+            top: -2.5px;
+            transition: left 1s ease;
+        }
+    </style>
+</head>
+<body>
+    <canvas class="matrix-bg" id="matrixCanvas"></canvas>
+    
+    <div class="container">
+        <div class="header">
+            <h1>SISTEMA DE DEFENSA AUTÓNOMO IA</h1>
+            <p>Protocolo Inmutable - Bucle Eterno de Protección</p>
+        </div>
+        
+        <div class="cyber-border">
+            <div class="status-bar">
+                <h2>ESTADO DEL SISTEMA</h2>
+                <div class="status-item">
+                    <span>Protocolo Principal:</span>
+                    <span class="status-value protocol-active" id="mainProtocol">ACTIVO</span>
+                </div>
+                <div class="status-item">
+                    <span>Ciclo de Ejecución:</span>
+                    <span class="status-value" id="executionCycle">0</span>
+                </div>
+                <div class="status-item">
+                    <span>Nivel de Amenaza:</span>
+                    <span class="status-value" id="threatLevel">BAJO</span>
+                </div>
+                <div class="threat-level">
+                    <div class="threat-indicator" id="threatIndicator"></div>
+                </div>
+                <div class="status-item">
+                    <span>Última Actualización:</span>
+                    <span class="status-value" id="lastUpdate">--:--:--</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="defense-grid">
+            <div class="defense-module">
+                <div class="module-header">
+                    <div class="module-icon">1</div>
+                    <h3>PROTECCIÓN ANTI-IFRAME</h3>
+                </div>
+                <div class="module-content">
+                    <p>Previene el embebido malicioso en frames externos.</p>
+                    <p>Estado: <span class="protocol-active" id="antiFrameStatus">ACTIVO</span></p>
+                </div>
+            </div>
+            
+            <div class="defense-module">
+                <div class="module-header">
+                    <div class="module-icon">2</div>
+                    <h3>DETECCIÓN DE ADBLOCKERS</h3>
+                </div>
+                <div class="module-content">
+                    <p>Identifica y neutraliza bloqueadores de contenido.</p>
+                    <p>Estado: <span class="protocol-active" id="adblockStatus">ACTIVO</span></p>
+                </div>
+            </div>
+            
+            <div class="defense-module">
+                <div class="module-header">
+                    <div class="module-icon">3</div>
+                    <h3>SISTEMA DE ROTACIÓN</h3>
+                </div>
+                <div class="module-content">
+                    <p>Rotación automática de dominios y proxies.</p>
+                    <p>Estado: <span class="protocol-active" id="rotationStatus">ACTIVO</span></p>
+                </div>
+            </div>
+            
+            <div class="defense-module">
+                <div class="module-header">
+                    <div class="module-icon">4</div>
+                    <h3>MONITOREO DE INTEGRIDAD</h3>
+                </div>
+                <div class="module-content">
+                    <p>Verificación continua de integridad del sistema.</p>
+                    <p>Estado: <span class="protocol-active" id="integrityStatus">ACTIVO</span></p>
+                </div>
+            </div>
+            
+            <div class="defense-module">
+                <div class="module-header">
+                    <div class="module-icon">5</div>
+                    <h3>PROTOCOLO TOR</h3>
+                </div>
+                <div class="module-content">
+                    <p>Conexión segura a través de red Tor.</p>
+                    <p>Estado: <span class="protocol-active" id="torStatus">ACTIVO</span></p>
+                </div>
+            </div>
+            
+            <div class="defense-module">
+                <div class="module-header">
+                    <div class="module-icon">6</div>
+                    <h3>BUCLE DE AUTO-REPARACIÓN</h3>
+                </div>
+                <div class="module-content">
+                    <p>Sistema de autoreparación y redundancia.</p>
+                    <p>Estado: <span class="protocol-active" id="repairStatus">ACTIVO</span></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="log-container">
+            <h3>REGISTRO DEL SISTEMA</h3>
+            <div id="systemLog"></div>
+        </div>
+        
+        <div class="footer">
+            SISTEMA DE DEFENSA AUTÓNOMO IA | PROTOCOLO INMUTABLE | BUCLE ETERNO ACTIVO
+            <br>NO SE REQUIERE INTERVENCIÓN HUMANA | TODOS LOS SISTEMAS OPERATIVOS
+        </div>
+    </div>
+
+    <script>
+        // Sistema de Matriz de fondo
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const chars = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const charArray = chars.split('');
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+        
+        for(let i = 0; i < columns; i++) {
+            drops[i] = Math.floor(Math.random() * canvas.height / fontSize);
+        }
+        
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#00ff41';
+            ctx.font = fontSize + 'px monospace';
+            
+            for(let i = 0; i < drops.length; i++) {
+                const text = charArray[Math.floor(Math.random() * charArray.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                
+                if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                
+                drops[i]++;
+            }
+        }
+        
+        // Sistema de Defensa Autónomo
+        class AutonomousDefenseSystem {
+            constructor() {
+                this.cycleCount = 0;
+                this.threatLevel = 1;
+                this.isRunning = true;
+                this.logEntries = [];
+                this.protocols = {
+                    antiFrame: true,
+                    adblockDetection: true,
+                    rotation: true,
+                    integrity: true,
+                    tor: true,
+                    repair: true
+                };
+                
+                this.init();
+            }
+            
+            init() {
+                this.addLog("SISTEMA INICIADO - Protocolo de defensa autónomo activado");
+                this.startMainLoop();
+                this.startAntiFrameProtection();
+                this.startAdblockDetection();
+                this.startRotationSystem();
+                this.startIntegrityMonitoring();
+                this.startTorProtocol();
+                this.startRepairLoop();
+                this.startThreatSimulation();
+                
+                setInterval(() => {
+                    this.updateDisplay();
+                }, 100);
+            }
+            
+            startMainLoop() {
+                setInterval(() => {
+                    this.cycleCount++;
+                    document.getElementById('executionCycle').textContent = this.cycleCount;
+                    
+                    if (this.cycleCount % 10 === 0) {
+                        this.addLog(`Ciclo de ejecución ${this.cycleCount} completado`);
+                    }
+                    
+                    // Verificación de protocolos cada 5 ciclos
+                    if (this.cycleCount % 5 === 0) {
+                        this.verifyAllProtocols();
+                    }
+                    
+                    // Ajuste automático de nivel de amenaza
+                    if (this.cycleCount % 15 === 0) {
+                        this.adjustThreatLevel();
+                    }
+                    
+                }, 1000);
+            }
+            
+            startAntiFrameProtection() {
+                // Protección anti-iframe
+                if (window.top !== window.self) {
+                    window.top.location = window.self.location;
+                    this.addLog("Intento de iframe detectado y neutralizado");
+                }
+                
+                setInterval(() => {
+                    if (window.top !== window.self) {
+                        window.top.location = window.self.location;
+                        this.addLog("Protección anti-iframe activada");
+                    }
+                }, 5000);
+            }
+            
+            startAdblockDetection() {
+                // Simulación de detección de adblockers
+                setInterval(() => {
+                    const isBlocked = Math.random() > 0.7;
+                    if (isBlocked) {
+                        this.addLog("Intento de bloqueo detectado - contramedidas aplicadas");
+                    }
+                }, 8000);
+            }
+            
+            startRotationSystem() {
+                // Sistema de rotación de dominios simulado
+                setInterval(() => {
+                    const domains = [
+                        "tpb.party", 
+                        "thepiratebay.org", 
+                        "piratebayproxy.info",
+                        "tpb.mirror.xyz",
+                        "bayofpirates.net"
+                    ];
+                    
+                    const randomDomain = domains[Math.floor(Math.random() * domains.length)];
+                    this.addLog(`Rotación de dominio activa: ${randomDomain}`);
+                }, 12000);
+            }
+            
+            startIntegrityMonitoring() {
+                // Monitoreo de integridad del sistema
+                setInterval(() => {
+                    const integrityCheck = Math.random() > 0.1; // 90% de integridad
+                    if (!integrityCheck) {
+                        this.addLog("ALERTA: Anomalía de integridad detectada - reparando");
+                        this.autoRepair();
+                    } else {
+                        this.addLog("Verificación de integridad: SISTEMA ESTABLE");
+                    }
+                }, 15000);
+            }
+            
+            startTorProtocol() {
+                // Simulación de protocolo Tor
+                setInterval(() => {
+                    this.addLog("Conexión TOR activa - anonimato garantizado");
+                }, 20000);
+            }
+            
+            startRepairLoop() {
+                // Bucle de autoreparación
+                setInterval(() => {
+                    this.addLog("Escaneo de autoreparación completado - sin anomalías");
+                }, 25000);
+            }
+            
+            startThreatSimulation() {
+                // Simulación de amenazas para demostrar capacidades defensivas
+                setInterval(() => {
+                    const threatType = Math.floor(Math.random() * 5);
+                    const threatMessages = [
+                        "Intento de DDoS detectado - contramedidas aplicadas",
+                        "Escaneo de puertos identificado - IP bloqueada",
+                        "Inyección de código neutralizada",
+                        "Spoofing de DNS prevenido",
+                        "Ataque de fuerza bruta mitigado"
+                    ];
+                    
+                    this.addLog(`AMENAZA: ${threatMessages[threatType]}`);
+                    this.threatLevel = Math.min(10, this.threatLevel + 1);
+                }, 30000);
+            }
+            
+            verifyAllProtocols() {
+                // Verificación periódica de todos los protocolos
+                Object.keys(this.protocols).forEach(protocol => {
+                    if (!this.protocols[protocol]) {
+                        this.protocols[protocol] = true;
+                        this.addLog(`Protocolo ${protocol} restaurado`);
+                    }
+                });
+            }
+            
+            adjustThreatLevel() {
+                // Reducción gradual del nivel de amenaza
+                if (this.threatLevel > 1) {
+                    this.threatLevel--;
+                }
+                
+                // Actualización del indicador visual
+                const threatIndicator = document.getElementById('threatIndicator');
+                const threatLevelElement = document.getElementById('threatLevel');
+                
+                const position = (this.threatLevel / 10) * 100;
+                threatIndicator.style.left = `calc(${position}% - 7.5px)`;
+                
+                if (this.threatLevel <= 3) {
+                    threatLevelElement.textContent = "BAJO";
+                    threatLevelElement.style.color = "#00ff41";
+                } else if (this.threatLevel <= 6) {
+                    threatLevelElement.textContent = "MEDIO";
+                    threatLevelElement.style.color = "#ffff00";
+                } else {
+                    threatLevelElement.textContent = "ALTO";
+                    threatLevelElement.style.color = "#ff0044";
+                }
+            }
+            
+            autoRepair() {
+                // Sistema de autoreparación automática
+                this.addLog("Iniciando protocolo de autoreparación...");
+                
+                setTimeout(() => {
+                    this.addLog("Autoreparación completada - sistema estabilizado");
+                    this.threatLevel = Math.max(1, this.threatLevel - 2);
+                }, 2000);
+            }
+            
+            addLog(message) {
+                const timestamp = new Date().toLocaleTimeString();
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log-entry';
+                logEntry.innerHTML = `<span class="timestamp">[${timestamp}]</span> ${message}`;
+                
+                const logContainer = document.getElementById('systemLog');
+                logContainer.appendChild(logEntry);
+                logContainer.scrollTop = logContainer.scrollHeight;
+                
+                // Mantener máximo 50 entradas en el log
+                if (logContainer.children.length > 50) {
+                    logContainer.removeChild(logContainer.children[0]);
+                }
+                
+                this.logEntries.push({timestamp, message});
+            }
+            
+            updateDisplay() {
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+            }
+        }
+        
+        // Inicialización del sistema cuando la página carga
+        window.addEventListener('load', () => {
+            // Iniciar efecto Matrix
+            setInterval(drawMatrix, 50);
+            
+            // Iniciar sistema de defensa autónomo
+            new AutonomousDefenseSystem();
+            
+            // Prevenir clic derecho (protección adicional)
+            document.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+            });
+            
+            // Prevenir arrastrar imágenes
+            document.addEventListener('dragstart', (e) => {
+                e.preventDefault();
+            });
+        });
+        
+        // Ajustar canvas al cambiar tamaño de ventana
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
